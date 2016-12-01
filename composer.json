@@ -8,9 +8,13 @@
 		"segment",
 		"analytics.js"
 	],
-	"homepage": "https://segment.com/libraries/php",
+	"homepage": "https://www.app-arena.com",
 	"license": "MIT",
 	"authors": [
+		{
+			"name": "App-Arena.com <friends@app-arena.com>",
+			"homepage": "https://www.app-arena.com/"
+		},
 		{
 			"name": "Segment.io <friends@segment.com>",
 			"homepage": "https://segment.com/"
