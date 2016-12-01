@@ -1,7 +1,7 @@
 analytics-php
 ==============
 
-analytics-php is a php client for [App-Arena.com](https://www.app-arena.com)
+analytics-php is a php client for [App-Arena.com](https://www.app-arena.com). Push Events and logs to our cluster.
 
 ## Documentation
 
