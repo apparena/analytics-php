@@ -1,11 +1,11 @@
 analytics-php
 ==============
 
-[![Build Status](https://travis-ci.org/segmentio/analytics-php.png?branch=master)](https://travis-ci.org/segmentio/analytics-php)
-
-analytics-php is a php client for [Segment](https://segment.com)
+analytics-php is a php client for [App-Arena.com](https://www.app-arena.com)
 
 ## Documentation
+
+The library is a fork of the great open source library from our friends at segment.io. 
 
 Documentation is available at [segment.com/docs/sources/server/php](https://segment.com/docs/sources/server/php/)
 
