@@ -1,22 +1,18 @@
 #!/usr/bin/env php
 <?php
 
-require(__DIR__ . '/../lib/Segment.php');
+require_once(__DIR__ . '/../lib/Segment.php');
 
 if (in_array('--help', $argv)) {
   print(usage());
   exit;
 }
 
-if (empty($_ENV['SEGMENT_WRITE_KEY'])) {
-  error('$SEGMENT_WRITE_KEY environment variable required');
-}
-
 date_default_timezone_set('UTC');
-Segment::init($_ENV['SEGMENT_WRITE_KEY']);
 
 $options = getopt('', [
-  'method:',        // T I P G A
+  'writeKey::',
+  'type:',        // T I P G A
   'event::',        // x
   'userId::',      // x x x x x
   'groupId::',     //       x
@@ -29,8 +25,13 @@ $options = getopt('', [
   'timestamp::'     // x x x x x
 ]);
 
+if (empty($options['writeKey'])) {
+  error('writeKey flag required');
+}
 
-switch ($options['method']) {
+Segment::init($options['writeKey']);
+
+switch ($options['type']) {
   case 'track':
     Segment::track(array(
       'userId' => $options['userId'],
@@ -90,7 +91,7 @@ switch ($options['method']) {
 Segment::flush();
 
 function usage() {
-  return "\n  Usage: analytics --method <track|identify|page|group|alias> [options]\n\n";
+  return "\n  Usage: analytics --type <track|identify|page|group|alias> [options]\n\n";
 }
 
 function error($message) {

@@ -1,11 +1,13 @@
 <?php
-abstract class Segment_QueueConsumer extends Segment_Consumer {
 
+abstract class Segment_QueueConsumer extends Segment_Consumer {
   protected $type = "QueueConsumer";
 
   protected $queue;
   protected $max_queue_size = 1000;
   protected $batch_size = 100;
+  protected $maximum_backoff_duration = 10000;    // Set maximum waiting limit to 10s
+  protected $host = "";
 
   /**
    * Store our secret and options as part of this consumer
@@ -15,17 +17,23 @@ abstract class Segment_QueueConsumer extends Segment_Consumer {
   public function __construct($secret, $options = array()) {
     parent::__construct($secret, $options);
 
-    if (isset($options["max_queue_size"]))
+    if (isset($options["max_queue_size"])) {
       $this->max_queue_size = $options["max_queue_size"];
+    }
 
-    if (isset($options["batch_size"]))
+    if (isset($options["batch_size"])) {
       $this->batch_size = $options["batch_size"];
+    }
+
+    if (isset($options["host"])) {
+      $this->host = $options["host"];
+    }
 
     $this->queue = array();
   }
 
   public function __destruct() {
-    # Flush our queue on destruction
+    // Flush our queue on destruction
     $this->flush();
   }
 
@@ -90,12 +98,28 @@ abstract class Segment_QueueConsumer extends Segment_Consumer {
   }
 
   /**
+   * Flushes our queue of messages by batching them to the server
+   */
+  public function flush() {
+    $count = count($this->queue);
+    $success = true;
+
+    while ($count > 0 && $success) {
+      $batch = array_splice($this->queue, 0, min($this->batch_size, $count));
+      $success = $this->flushBatch($batch);
+
+      $count = count($this->queue);
+    }
+
+    return $success;
+  }
+
+  /**
    * Adds an item to our queue.
    * @param  mixed   $item
    * @return boolean whether call has succeeded
    */
   protected function enqueue($item) {
-
     $count = count($this->queue);
 
     if ($count > $this->max_queue_size) {
@@ -111,44 +135,17 @@ abstract class Segment_QueueConsumer extends Segment_Consumer {
     return true;
   }
 
-
-  /**
-   * Flushes our queue of messages by batching them to the server
-   */
-  public function flush() {
-
-    $count = count($this->queue);
-    $success = true;
-
-    while($count > 0 && $success) {
-
-      $batch = array_splice($this->queue, 0, min($this->batch_size, $count));
-      $success = $this->flushBatch($batch);
-
-      $count = count($this->queue);
-    }
-
-    return $success;
-  }
-
   /**
    * Given a batch of messages the method returns
    * a valid payload.
-   * 
-   * @param {Array} batch
+   *
+   * @param {Array} $batch
    * @return {Array}
-   **/
+   */
   protected function payload($batch){
     return array(
       "batch" => $batch,
       "sentAt" => date("c"),
     );
   }
-
-  /**
-   * Flushes a batch of messages.
-   * @param  [type] $batch [description]
-   * @return [type]        [description]
-   */
-  abstract function flushBatch($batch);
 }
